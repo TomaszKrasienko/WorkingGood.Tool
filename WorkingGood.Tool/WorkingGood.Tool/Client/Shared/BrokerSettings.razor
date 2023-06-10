@@ -1,0 +1,39 @@
+@using WorkingGood.Tool.Client.Services
+@using WorkingGood.Tool.Shared.BrokerRoute
+@inject IBrokerSettingsService _brokerSettingsService
+<div class="row">
+    <div class="col-md-12">
+        <BrokerSettingRow OnAddOrEdit="AddOrEdit"></BrokerSettingRow>
+        @foreach (var brokerRouteDto in _brokerQueuesList)
+        {
+            <BrokerSettingRow BrokerRouteDto="brokerRouteDto" OnAddOrEdit="AddOrEdit" OnDelete="Delete"></BrokerSettingRow>
+        }
+    </div>
+</div>
+
+@code {
+    private List<BrokerQueueVM> _brokerQueuesList = new();
+    protected override async Task OnInitializedAsync()
+    {
+        _brokerQueuesList = await _brokerSettingsService.GetBrokerQueues();
+    }
+
+    private void AddOrEdit(BrokerQueueVM brokerRouteDto)
+    {
+        if (!(_brokerQueuesList.Any(x => x.Id == brokerRouteDto.Id)))
+        {
+            _brokerQueuesList.Add(brokerRouteDto);
+        }
+        else
+        {
+            int index = _brokerQueuesList.FindIndex(x => x.Id == brokerRouteDto.Id);
+            _brokerQueuesList[index] = brokerRouteDto;
+        }
+    }
+
+    private void Delete(Guid id)
+    {
+        BrokerQueueVM item = _brokerQueuesList.FirstOrDefault(x => x.Id == id);
+        _brokerQueuesList.Remove(item);
+    }
+}

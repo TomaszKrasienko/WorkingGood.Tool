@@ -1,0 +1,12 @@
+version: '3.7'
+services:
+  tool:
+    container_name: working-good-tool
+    build: ./
+    ports: 
+      - 30020:80
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+networks: 
+  default:
+    name: working-good

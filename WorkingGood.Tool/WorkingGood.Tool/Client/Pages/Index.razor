@@ -1,0 +1,23 @@
+﻿@page "/"
+@using WorkingGood.Tool.Client.Services
+@inject ILogsService _logsService
+<PageTitle>Index</PageTitle>
+
+<h2>Welcome to Working good tool</h2>
+<br/>
+<div class="col-md-4 offset-4 text-center">
+    <h3>In this week</h3>
+    <p>Errors: @_errorsInWeek</p>
+    <p>Operations: @_operationsInWeek</p>
+    <p>Emails: @_emailsInWeek</p>
+</div>
+@code{
+    private int _errorsInWeek = 0;
+    private int _operationsInWeek = 0;
+    private int _emailsInWeek = 0;
+    protected override async Task OnInitializedAsync()
+    {
+        _errorsInWeek = await _logsService.GetErrorsInWeek();
+        _operationsInWeek = await _logsService.GetOperationsInWeek();
+    }
+}

@@ -1,0 +1,36 @@
+@using WorkingGood.Tool.Shared.Logs
+<div class="black-log-card overflow-auto">
+    @foreach (var log in Logs)
+    {
+        <p>
+            {
+            <span style="color: green">
+                @log.Level
+            </span>
+            -
+            <span>
+                @log.TimeStamp
+            </span>
+            -
+            <span>
+                @log.Message
+            </span>
+            -
+            <span>
+                @log.Localization
+            </span>
+            -
+            <span>
+                @log.ServiceName
+            </span>
+            }
+        </p>
+    }
+</div>
+
+@code {
+
+    [Parameter]
+    public List<LogDto> Logs { get; set; } = new();
+    
+}

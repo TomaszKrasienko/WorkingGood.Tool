@@ -1,0 +1,103 @@
+@using WorkingGood.Tool.Shared.BrokerRoute
+@using WorkingGood.Tool.Client.Enums
+@using WorkingGood.Tool.Client.Services
+@inject IBrokerSettingsService _settingsService;
+<div class="row">
+    <div class="col-md-12">
+        <EditForm Model="_addBrokerRoute" OnSubmit="AddOrEdit">
+            <div class="row">
+                <div class="col-md-8 offset-2 text-center">
+                    <label for="queueSetting" class="white-text row-element">Queue</label>
+                    <InputText id="queueSetting" class="row-element" @bind-Value="_addBrokerRoute.Queue" disabled="@(!(IsAble()))"></InputText>
+                    @if (IsCreateState())
+                    {
+                        <button type="submit" class="btn btn-outline-success btn-sm row-element">
+                            <i class="oi oi-check"></i>
+                        </button>
+                    }
+                    else if (IsEditState())
+                    {
+                        <button type="submit" class="btn btn-outline-success btn-sm row-element">
+                            <i class="oi oi-check"></i>
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-outline-light btn-sm row-element" @onclick="ChangeState">
+                            <i class="oi oi-pencil"></i>
+                        </button>
+                    }
+                    <button type="button" class="btn btn-outline-danger btn-sm row-element" @onclick="DeleteQueue" disabled="@IsCreateState()"><i class="oi oi-minus"></i></button>
+                </div>
+            </div>
+        </EditForm>
+        <hr style="color: white"/>
+    </div>
+</div>
+@code {
+    [Parameter] 
+    public BrokerQueueVM? BrokerRouteDto { get; set; }
+    
+    [Parameter]
+    public EventCallback<BrokerQueueVM> OnAddOrEdit { get; set; }
+    
+    [Parameter]
+    public EventCallback<Guid> OnDelete { get; set; }
+    
+    private BrokerQueueDto _addBrokerRoute = new BrokerQueueDto();
+    private SettingRowState _settingRowState;
+    protected override void OnParametersSet()
+    {
+        if (BrokerRouteDto is null)
+        {
+            _settingRowState = SettingRowState.Create;
+        }
+        else
+        {
+            _settingRowState = SettingRowState.Details;
+            _addBrokerRoute.Queue = BrokerRouteDto.Queue;
+        }
+    }
+
+    private async Task AddOrEdit()
+    {
+        if (_settingRowState == SettingRowState.Create) 
+        {
+            BrokerQueueVM brokerRouteDto = await _settingsService.AddBrokerQueue(_addBrokerRoute);
+            await OnAddOrEdit.InvokeAsync(brokerRouteDto);
+            _addBrokerRoute = new();
+        }
+        else
+        {
+            BrokerQueueVM brokerRouteDto = await _settingsService.EditBrokerQueue(BrokerRouteDto!.Id, _addBrokerRoute);
+            await OnAddOrEdit.InvokeAsync(brokerRouteDto);
+        }
+    }
+    
+    private async Task DeleteQueue()
+    {
+        await _settingsService.DeleteBrokerQueue(BrokerRouteDto.Id);
+        await OnDelete.InvokeAsync(BrokerRouteDto.Id);
+    }   
+
+    private bool IsCreateState()
+    {
+        return _settingRowState == SettingRowState.Create;
+    }
+
+    private bool IsEditState()
+    {
+        return _settingRowState == SettingRowState.Edit;
+    }
+
+    private bool IsAble()
+    {
+        return IsEditState() || IsCreateState();
+    }
+
+    private void ChangeState()
+    {
+        if (_settingRowState == SettingRowState.Details)
+            _settingRowState = SettingRowState.Edit;
+    }
+}

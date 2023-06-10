@@ -1,0 +1,64 @@
+@page "/logs"
+@using WorkingGood.Tool.Shared.Logs
+@using WorkingGood.Tool.Client.Services
+@using WorkingGood.Tool.Client.Models
+@inject ILogsService _logService;
+<div class="col-md-10 offset-1">
+    <div class="row">
+        <div class="text-center">
+            <h3>Logs</h3>
+        </div>
+    </div>
+    <div class="row">
+        <EditForm Model="_multiParamLogSearch" OnSubmit="FilterLogs">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="white-text">Service</label>
+                    <InputSelect @bind-Value="_multiParamLogSearch.ServiceName" class="form-select">
+                        <option></option>
+                        @foreach (var name in _servicesList)
+                        {
+                            <option value="@name">@name</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="col-md-3">
+                    <label for="searchPhrase" class="white-text">Search phrase</label>
+                    <InputText id="searchPhrase" @bind-Value="_multiParamLogSearch.SearchPhrase" class="form-control"></InputText>
+                </div>
+                <div class="col-md-2">
+                    <label for="dateFrom" class="white-text">Date from</label>
+                    <InputDate id="dateFrom" @bind-Value="_multiParamLogSearch.DateFrom" class="form-control"></InputDate>
+                </div>
+                <div class="col-md-2">
+                    <label for="dateFrom" class="white-text">Date to</label>
+                    <InputDate id="dateTo" @bind-Value="_multiParamLogSearch.DateTo" class="form-control"></InputDate>
+                </div>
+                <div class="col-md-2">
+                    <br/>
+                    <button type="submit" class="btn btn-light">Search</button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+    <br/>
+    <div style="height: 300px">
+        <LogsCard Logs="_logsList"></LogsCard>
+    </div>
+</div>
+@code {
+    private List<LogDto> _logsList = new List<LogDto>();
+    private List<string> _servicesList = new List<string>();
+    private MultiParamLogSearch _multiParamLogSearch;
+    protected override async Task OnInitializedAsync()
+    {
+        _multiParamLogSearch = new MultiParamLogSearch();
+        _servicesList = await _logService.GetServicesAsync();
+        _logsList = await _logService.GetAllAsync();
+    }
+
+    async Task FilterLogs()
+    {
+        _logsList = await _logService.GetFilteredAsync(_multiParamLogSearch);
+    }
+}

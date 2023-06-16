@@ -10,6 +10,7 @@ public static class ClientConfiguration
     {
         services.AddScoped<ILogsService, LogsService>();
         services.AddScoped<IBrokerSettingsService, BrokerSettingsService>();
+        services.AddScoped<IEmailTemplatesSettingsService, EmailTemplatesSettingsService>();
         services.AddHttpClient(webAssemblyHostEnvironment);
         return services;
     }

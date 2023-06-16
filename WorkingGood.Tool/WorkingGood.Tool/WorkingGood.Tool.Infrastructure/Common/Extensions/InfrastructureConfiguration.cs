@@ -36,7 +36,8 @@ namespace WorkingGood.Tool.Infrastructure.Common.Extensions
 			return services
 				.AddScoped<ILogRepository, LogRepository>()
 				.AddScoped<IMongoDbContext, MongoDbContext>()
-				.AddScoped<IBrokerQueuesRepository, BrokerQueuesRepository>();
+				.AddScoped<IBrokerQueuesRepository, BrokerQueuesRepository>()
+				.AddScoped<IEmailTemplateRepository, EmailTemplateRepository>();
 		}
 	}
 }

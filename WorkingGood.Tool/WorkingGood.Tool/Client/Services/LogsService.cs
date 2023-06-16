@@ -27,6 +27,8 @@ public class LogsService : ILogsService
         var query = HttpUtility.ParseQueryString(string.Empty);
         if (multiParamLogSearch.ServiceName is not null)
             query["serviceName"] = multiParamLogSearch.ServiceName;
+        if (multiParamLogSearch.Level is not null)
+            query["level"] = multiParamLogSearch.Level;
         if (multiParamLogSearch.DateFrom is not null)
             query["dateFrom"] = multiParamLogSearch.DateFrom.ToString();
         if (multiParamLogSearch.DateTo is not null)
@@ -56,5 +58,12 @@ public class LogsService : ILogsService
         var httpClient = _httpClientFactory.CreateClient("Base");
         var result = await httpClient.GetStringAsync("/api/logs/getOperationsInWeek");
         return int.Parse(result);
+    }
+
+    public async Task<List<string>> GetLogsLevel()
+    {              
+        var httpClient = _httpClientFactory.CreateClient("Base");
+        var result = await httpClient.GetFromJsonAsync<List<string>>("/api/logs/getLogsLevel");
+        return result ?? new List<string>();
     }
 }

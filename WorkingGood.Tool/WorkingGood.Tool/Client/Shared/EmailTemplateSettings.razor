@@ -1,0 +1,84 @@
+@using System.Net
+@using System.Net.Http.Headers
+@using WorkingGood.Tool.Client.Extensions
+@using WorkingGood.Tool.Client.Services
+@using WorkingGood.Tool.Shared.Settings
+@using System.Diagnostics.CodeAnalysis
+@inject IEmailTemplatesSettingsService _emailTemplatesSettingsService 
+<div class="row">
+    <div class="col-md-12">
+        <EditForm Model="_emailTemplate" OnSubmit="SaveTemplate">
+            <div class="row">
+                <div class="col-md-4 offset-4 text-center">
+                    <label class="white-text">Template destination</label>
+                    <InputSelect class="form-select" ValueExpression="() => _emailTemplate.Destination" ValueChanged="@(async (string value) => await OnDestinationChange(value))">
+                        <option value="@string.Empty"></option>
+                        @foreach (var destination in _destinations)
+                        {
+                            <option value="@destination">@destination</option>
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+            <br/>
+            <div class="row" hidden="@(!_isDestination)">
+                <div class="row">
+                    <div class="col-md-8">
+                        <label class="white-text">Template content</label>
+                        <InputTextArea id="templateContent" rows="10" style="width: 100%" class="max-width" @bind-Value="_emailTemplate.Content"></InputTextArea>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <label class="white-text">Template type</label>
+                        <InputSelect class="form-select" @bind-Value="_emailTemplate.Type">
+                            <option value="Html">Html</option>
+                            <option value="Text">Text</option>
+                        </InputSelect>
+                        <br/>
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="oi oi-check"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private EmailTemplateDto _emailTemplate = new();
+        private List<string> _destinations = new();
+        private bool _isDestination;
+
+        protected override async Task OnInitializedAsync()
+        {
+            _emailTemplate = new();
+            _isDestination = false;
+            _destinations = await _emailTemplatesSettingsService.GetEmailTemplatesDestinations();
+        }
+
+        private async Task OnDestinationChange(string value)
+        {
+            _emailTemplate.Destination = value;
+            Console.WriteLine(_isDestination);
+            if (!string.IsNullOrEmpty(_emailTemplate.Destination))
+            {
+                EmailTemplateVM? result = await _emailTemplatesSettingsService.GetEmailTemplateByDestination(_emailTemplate.Destination);
+                if (result != null)
+                {
+                    _emailTemplate.Content = result.Content;
+                    _emailTemplate.Type = result.Type;
+                }
+            }
+            _isDestination = !string.IsNullOrEmpty(_emailTemplate.Destination);
+        }
+
+        private async Task SaveTemplate()
+        {
+            var result = await _emailTemplatesSettingsService.AddEmailTemplate(_emailTemplate);
+            if (result)
+            {
+                _emailTemplate = new();
+                _isDestination = false;
+            }
+        }
+    }

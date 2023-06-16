@@ -10,4 +10,5 @@ public interface ILogsService
     Task<List<string>> GetServicesAsync();
     Task<int> GetErrorsInWeek();
     Task<int> GetOperationsInWeek();
+    Task<List<string>> GetLogsLevel();
 }

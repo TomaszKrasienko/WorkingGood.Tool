@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using WorkingGood.Tool.Domain.Interfaces.Repositories;
 using WorkingGood.Tool.Domain.Models.DataModels;
@@ -26,17 +22,17 @@ namespace WorkingGood.Tool.Server.Controllers
         [HttpGet("getAllLogs")]
         public async Task<ActionResult<List<LogDto>>> GetLogs()
         {
-            List<LogData> logDataList = await _logRepository.GetAsync();
+            List<LogData> logDataList = await _logRepository.GetFilteredAsync(null, null, null, null, null);
             List<LogDto> logDtoList = _mapper.Map<List<LogDto>>(logDataList);
-            return Ok(logDataList);
+            return Ok(logDataList.OrderByDescending(x => x.TimeStamp));
         }
 
         [HttpGet("getFilteredLogs")]
-        public async Task<ActionResult<List<LogData>>> GetFiltered(string? serviceName, DateTime? dateFrom, DateTime? dateTo, string? searchPhrase)
+        public async Task<ActionResult<List<LogData>>> GetFiltered(string? serviceName, string? level, DateTime? dateFrom, DateTime? dateTo, string? searchPhrase)
         {
-            List<LogData> logDataList = await _logRepository.GetFilteredAsync(serviceName, dateFrom, dateTo, searchPhrase);
+            List<LogData> logDataList = await _logRepository.GetFilteredAsync(serviceName, level, dateFrom, dateTo, searchPhrase);
             List<LogDto> logDtoList = _mapper.Map<List<LogDto>>(logDataList);
-            return Ok(logDataList);
+            return Ok(logDataList.OrderByDescending(x => x.TimeStamp));
         }
 
         [HttpGet("getServiceNames")]
@@ -58,6 +54,13 @@ namespace WorkingGood.Tool.Server.Controllers
         {
             int result = await _logRepository.GetOperationsInWeek();
             return Ok(result);
+        }
+
+        [HttpGet("getLogsLevel")]
+        public async Task<ActionResult<List<string>>> GetLogsLevel()
+        {
+            List<string> levels = await _logRepository.GetLogsLevel();
+            return Ok(levels);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace WorkingGood.Tool.Domain.Interfaces.Repositories
 		Task<List<T>> GetAsync();
 		Task AddAsync(T entity);
 		Task EditAsync(T entity);
-		Task DeleteAsync(Guid id);
+		Task DeleteAsync(Guid id);  
 	}
 }
 

@@ -15,12 +15,14 @@ public class LogRepository : Repository<LogData>, ILogRepository
         
     }
 
-    public async Task<List<LogData>> GetFilteredAsync(string? serviceName, DateTime? dateFrom, DateTime? dateTo, string? searchPhrase)
+    public async Task<List<LogData>> GetFilteredAsync(string? serviceName, string? level, DateTime? dateFrom, DateTime? dateTo, string? searchPhrase)
     { 
         IMongoCollection<LogData> collection = GetCollection();
         IMongoQueryable<LogData> query = collection.AsQueryable<LogData>();
         if (serviceName is not null)
             query = query.Where(x => x.ServiceName == serviceName);
+        if (level is not null)
+            query = query.Where(x => x.Level == level);
         if (dateFrom is not null)
             query = query.Where(x => x.TimeStamp > dateFrom);
         if (dateTo is not null)
@@ -47,6 +49,15 @@ public class LogRepository : Repository<LogData>, ILogRepository
             .CountDocumentsAsync(x =>
                 x.TimeStamp > DateTime.Today.AddDays(- (int)DateTime.Today.DayOfWeek));
         return (int)result;
+    }
+
+    public async Task<List<string>> GetLogsLevel()
+    {
+        IMongoCollection<LogData> collection = GetCollection();
+        var result = await collection.DistinctAsync<string>(
+            nameof(LogData.Level), 
+            Builders<LogData>.Filter.Empty);
+        return await result.ToListAsync();
     }
 
     public async Task<List<string>> GetServiceNamesAsync()

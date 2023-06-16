@@ -4,7 +4,7 @@
     {
         <p>
             {
-            <span style="color: green">
+            <span style="@GetStyleForLevel(log.Level)">
                 @log.Level
             </span>
             -
@@ -32,5 +32,17 @@
 
     [Parameter]
     public List<LogDto> Logs { get; set; } = new();
-    
+
+    private string GetStyleForLevel(string level)
+    {
+        if (level == "Error")
+            return "color: red";
+        if (level == "Info")
+            return "color: green";
+        if (level == "Warn")
+            return "color: yellow";
+        if (level == "Email")
+            return "color: lightskyblue";
+        return "color: white";
+    }
 }

@@ -12,7 +12,7 @@
     <div class="row">
         <EditForm Model="_multiParamLogSearch" OnSubmit="FilterLogs">
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="white-text">Service</label>
                     <InputSelect @bind-Value="_multiParamLogSearch.ServiceName" class="form-select">
                         <option></option>
@@ -22,7 +22,17 @@
                         }
                     </InputSelect>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
+                    <label class="white-text">Levels</label>
+                    <InputSelect @bind-Value="_multiParamLogSearch.Level" class="form-select">
+                        <option></option>
+                        @foreach (var level in _levelsList)
+                        {
+                            <option value="@level">@level</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="col-md-2">
                     <label for="searchPhrase" class="white-text">Search phrase</label>
                     <InputText id="searchPhrase" @bind-Value="_multiParamLogSearch.SearchPhrase" class="form-control"></InputText>
                 </div>
@@ -49,12 +59,14 @@
 @code {
     private List<LogDto> _logsList = new List<LogDto>();
     private List<string> _servicesList = new List<string>();
+    private List<string> _levelsList = new List<string>();
     private MultiParamLogSearch _multiParamLogSearch;
     protected override async Task OnInitializedAsync()
     {
         _multiParamLogSearch = new MultiParamLogSearch();
         _servicesList = await _logService.GetServicesAsync();
         _logsList = await _logService.GetAllAsync();
+        _levelsList = await _logService.GetLogsLevel();
     }
 
     async Task FilterLogs()

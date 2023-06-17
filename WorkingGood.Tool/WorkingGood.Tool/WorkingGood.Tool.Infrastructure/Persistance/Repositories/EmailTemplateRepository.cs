@@ -19,4 +19,11 @@ public class EmailTemplateRepository : Repository<EmailTemplate>, IEmailTemplate
         var result = await collection.FindAsync<EmailTemplate>(x => x.Destination == emailTemplateDestination);
         return await result.FirstOrDefaultAsync();
     }
+
+    public async Task<bool> IsExistsByDestinationAsync(EmailTemplateDestination emailTemplateDestination)
+    {
+        IMongoCollection<EmailTemplate> collection = GetCollection();
+        var result = await collection.CountDocumentsAsync(x => x.Destination == emailTemplateDestination);
+        return result != 0;
+    }
 }

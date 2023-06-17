@@ -43,7 +43,13 @@ public class EmailTemplatesController : ControllerBase
     public async Task<ActionResult<EmailTemplateVM>> AddEmailTemplate([FromBody] EmailTemplateDto emailTemplateDto)
     {
         EmailTemplate emailTemplate = _mapper.Map<EmailTemplate>(emailTemplateDto);
-        await _emailTemplateRepository.AddAsync(emailTemplate);
+        EmailTemplateDestination? emailTemplateDestination = Enum
+            .GetValues<EmailTemplateDestination>()
+            .FirstOrDefault(x => x.ToString() == emailTemplateDto.Destination);
+        if (await _emailTemplateRepository.IsExistsByDestinationAsync((EmailTemplateDestination) emailTemplateDestination))
+            await _emailTemplateRepository.EditAsync(emailTemplate);
+        else
+            await _emailTemplateRepository.AddAsync(emailTemplate);
         return Ok(_mapper.Map<EmailTemplateVM>(emailTemplate));
     }
     
